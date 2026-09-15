@@ -1,6 +1,6 @@
 # 📊 Pulse (React) — Fitness Analytics Dashboard
 
-A React + Vite rebuild of the [vanilla-JS Pulse dashboard](../analytics-dashboard), rebuilt component-by-component and made properly mobile responsive: a real off-canvas navigation drawer below the tablet breakpoint, a fluid stat grid, and charts that stay legible from a 375px phone screen up to a wide desktop monitor.
+A React + Vite mobile responsive fitness analytics: a real off-canvas navigation drawer below the tablet breakpoint, a fluid stat grid, and charts that stay legible from a 375px phone screen up to a wide desktop monitor.
 
 ## Features
 
