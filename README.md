@@ -2,6 +2,10 @@
 
 A React + Vite fitness analytics dashboard: six real pages behind client-side routing, an off-canvas mobile navigation drawer, and interactions that actually change what's on screen — a date-range selector that swaps the data, clickable stat cards that jump to detail pages, filterable/expandable workout logs, goals you can log progress against (persisted), and a settings page whose changes propagate live across the rest of the app.
 
+View app: https://analytics-dashboard-fump.vercel.app/
+<img width="1643" height="960" alt="image" src="https://github.com/user-attachments/assets/1d2e8303-25b6-4e68-b876-dc9bb320801a" />
+
+
 ## Features
 
 - **Six routed pages**, not just one dashboard screen:
