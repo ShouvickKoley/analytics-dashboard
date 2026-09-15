@@ -1,8 +1,9 @@
 import styles from './TopBar.module.css'
 
 export default function TopBar({
-  greeting,
+  title,
   dateLabel,
+  showRangeSelector,
   ranges,
   range,
   onRangeChange,
@@ -25,27 +26,31 @@ export default function TopBar({
           ☰
         </button>
         <div>
-          <h1 className={styles.heading}>{greeting}</h1>
+          <h1 className={styles.heading}>{title}</h1>
           <p className={styles.dateLabel}>{dateLabel}</p>
         </div>
       </div>
 
       <div className={styles.actions}>
-        <label className={styles.srOnly} htmlFor="range-select">
-          Date range
-        </label>
-        <select
-          id="range-select"
-          className={styles.rangeSelect}
-          value={range}
-          onChange={(e) => onRangeChange(e.target.value)}
-        >
-          {ranges.map((r) => (
-            <option key={r} value={r}>
-              {r}
-            </option>
-          ))}
-        </select>
+        {showRangeSelector && (
+          <>
+            <label className={styles.srOnly} htmlFor="range-select">
+              Date range
+            </label>
+            <select
+              id="range-select"
+              className={styles.rangeSelect}
+              value={range}
+              onChange={(e) => onRangeChange(e.target.value)}
+            >
+              {ranges.map((r) => (
+                <option key={r} value={r}>
+                  {r}
+                </option>
+              ))}
+            </select>
+          </>
+        )}
         <button
           type="button"
           className={styles.iconBtn}

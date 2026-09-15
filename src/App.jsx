@@ -1,30 +1,53 @@
 import { useId, useMemo, useState } from 'react'
+import { Route, Routes, useLocation } from 'react-router-dom'
 import Sidebar from './components/Sidebar/Sidebar'
 import TopBar from './components/TopBar/TopBar'
-import StatCard from './components/StatCard/StatCard'
-import BarChart from './components/BarChart/BarChart'
-import LineChart from './components/LineChart/LineChart'
-import RingChart from './components/RingChart/RingChart'
-import ActivityList from './components/ActivityList/ActivityList'
+import Overview from './pages/Overview/Overview'
+import Activity from './pages/Activity/Activity'
+import HeartRate from './pages/HeartRate/HeartRate'
+import Sleep from './pages/Sleep/Sleep'
+import Goals from './pages/Goals/Goals'
+import Settings from './pages/Settings/Settings'
+import NotFound from './pages/NotFound/NotFound'
 import { useTheme } from './hooks/useTheme'
-import {
-  user,
-  navItems,
-  statCards,
-  days,
-  weeklyActivity,
-  heartRateTrend,
-  rings,
-  recentActivity,
-  dateRanges,
-} from './data/dashboardData'
+import { useLocalStorage } from './hooks/useLocalStorage'
+import { user, navItems, dateRanges, defaultSettings } from './data/dashboardData'
 import styles from './App.module.css'
+
+// Per-route header content. Overview is the only page whose data depends
+// on the date-range selector, so it's the only one that shows it.
+function getPageMeta(pathname, firstName) {
+  switch (pathname) {
+    case '/':
+      return { title: `Good morning, ${firstName}`, showRangeSelector: true }
+    case '/activity':
+      return { title: 'Activity', showRangeSelector: false }
+    case '/heart-rate':
+      return { title: 'Heart rate', showRangeSelector: false }
+    case '/sleep':
+      return { title: 'Sleep', showRangeSelector: false }
+    case '/goals':
+      return { title: 'Goals', showRangeSelector: false }
+    case '/settings':
+      return { title: 'Settings', showRangeSelector: false }
+    default:
+      return { title: 'Pulse', showRangeSelector: false }
+  }
+}
 
 export default function App() {
   const { theme, toggleTheme } = useTheme()
+  // Settings lives here, not inside the Settings page, because the sidebar
+  // (display name) and the Activity page (units) need to react to it too,
+  // and they're all mounted alongside Settings rather than instead of it.
+  const [settings, setSettings] = useLocalStorage('pulse-react.settings', defaultSettings)
   const [menuOpen, setMenuOpen] = useState(false)
   const [range, setRange] = useState(dateRanges[0])
   const sidebarId = useId()
+  const location = useLocation()
+
+  const displayName = settings.displayName || user.name
+  const pageMeta = getPageMeta(location.pathname, displayName.split(' ')[0])
 
   const dateLabel = useMemo(
     () =>
@@ -42,12 +65,19 @@ export default function App() {
         Skip to main content
       </a>
 
-      <Sidebar id={sidebarId} items={navItems} user={user} isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
+      <Sidebar
+        id={sidebarId}
+        items={navItems}
+        user={{ ...user, name: displayName }}
+        isOpen={menuOpen}
+        onClose={() => setMenuOpen(false)}
+      />
 
       <div className={styles.content}>
         <TopBar
-          greeting={`Good morning, ${user.name.split(' ')[0]}`}
+          title={pageMeta.title}
           dateLabel={dateLabel}
+          showRangeSelector={pageMeta.showRangeSelector}
           ranges={dateRanges}
           range={range}
           onRangeChange={setRange}
@@ -58,53 +88,20 @@ export default function App() {
         />
 
         <main id="main" className={styles.main}>
-          <section className={styles.statGrid} aria-label="Key metrics">
-            {statCards.map((card) => (
-              <StatCard key={card.id} {...card} />
-            ))}
-          </section>
-
-          <section className={styles.panelGrid}>
-            <div className={styles.panel}>
-              <h2 className={styles.panelTitle}>Weekly activity</h2>
-              <p className={styles.panelSub}>Steps vs. active minutes, last 7 days</p>
-              <BarChart
-                labels={days}
-                seriesA={weeklyActivity.steps}
-                seriesB={weeklyActivity.activeMinutes}
-                seriesALabel="Steps (x100)"
-                seriesBLabel="Active minutes"
-                title="Weekly activity chart"
-                description="Bar chart comparing daily step count and active minutes across Monday through Sunday."
-              />
-            </div>
-
-            <div className={styles.panel}>
-              <h2 className={styles.panelTitle}>Today&rsquo;s rings</h2>
-              <p className={styles.panelSub}>Move · Exercise · Stand</p>
-              <RingChart rings={rings} />
-            </div>
-          </section>
-
-          <section className={styles.panelGrid}>
-            <div className={styles.panel}>
-              <h2 className={styles.panelTitle}>Heart rate trend</h2>
-              <p className={styles.panelSub}>Beats per minute over the last 7 days</p>
-              <LineChart
-                labels={days}
-                values={heartRateTrend}
-                unit="bpm"
-                title="Heart rate trend chart"
-                description="Line chart of average resting heart rate per day, ranging from 61 to 68 beats per minute over the last 7 days."
-              />
-            </div>
-
-            <div className={styles.panel}>
-              <h2 className={styles.panelTitle}>Recent activity</h2>
-              <p className={styles.panelSub}>Latest logged workouts</p>
-              <ActivityList items={recentActivity} />
-            </div>
-          </section>
+          <Routes>
+            <Route path="/" element={<Overview range={range} />} />
+            <Route path="/activity" element={<Activity settings={settings} />} />
+            <Route path="/heart-rate" element={<HeartRate />} />
+            <Route path="/sleep" element={<Sleep />} />
+            <Route path="/goals" element={<Goals />} />
+            <Route
+              path="/settings"
+              element={
+                <Settings settings={settings} onChangeSettings={setSettings} theme={theme} onToggleTheme={toggleTheme} />
+              }
+            />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
         </main>
       </div>
     </div>
