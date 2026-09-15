@@ -1,4 +1,4 @@
-# 📊 Pulse (React) — Fitness Analytics Dashboard
+# 📊 Pulse - Fitness Analytics Dashboard
 
 A React + Vite fitness analytics dashboard: six real pages behind client-side routing, an off-canvas mobile navigation drawer, and interactions that actually change what's on screen — a date-range selector that swaps the data, clickable stat cards that jump to detail pages, filterable/expandable workout logs, goals you can log progress against (persisted), and a settings page whose changes propagate live across the rest of the app.
 
